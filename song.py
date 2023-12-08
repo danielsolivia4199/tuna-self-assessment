@@ -1,9 +1,29 @@
-from django.db import models
-from .artist import Artist
+from django.http import HttpResponseServerError
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework import serializers, status
+from tunaapi.models import Song, SongSerializer
 
-class Song(models.Model):
-
-    title = models.CharField(max_length=50)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
-    album = models.CharField(max_length=50)
-    length = models.IntegerField(null=True)
+class SongView(ViewSet):
+  
+    """"Tuna API Songs View"""   
+    def retrieve(self, request, pk):
+        """"Handle GET requests for single song
+        """
+        
+        song = Song.objects.get(pk=pk)
+        serializer = SongSerializer(song)
+        return Response(serializer.data)  
+      
+ 
+    def list(self, request):
+        """Handle GET requests to get all artists
+        
+        Returns:
+            Response -- JSON serialized list of artists
+        """
+        
+        
+        songs = Song.objects.all()
+        serializer = SongSerializer(songs, many=True)
+        return Response(serializer.data)
